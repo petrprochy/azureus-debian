@@ -1,0 +1,521 @@
+From: Stefano Maioli <smaioli@gmx.com>
+Subject: [PATCH] fixes/multiuser
+
+Allow one single instance of Azureus per user, instead of one per
+machine. Add authentication to the control interface.
+
+Bug-Debian: http://bugs.debian.org/329018
+Bug-Ubuntu: https://bugs.launchpad.net/222630
+Acked-by: Onkar Shinde <onkarshinde@ubuntu.com>
+Signed-off-by: Adrian Perez <adrianperez.deb@gmail.com>
+
+---
+ .../core/impl/AzureusCoreSingleInstanceClient.java |    8 +-
+ .../impl/tcp/IncomingSocketChannelManager.java     |    2 +-
+ .../networkmanager/impl/udp/UDPNetworkManager.java |    4 +-
+ .../core3/config/impl/ConfigurationChecker.java    |    2 +-
+ .../core3/ipchecker/natchecker/NatChecker.java     |    2 +-
+ .../azureus2/core3/util/LocalSocketHelper.java     |  128 ++++++++++++++++++++
+ org/gudy/azureus2/core3/util/RandomUtils.java      |    2 +-
+ .../platform/unix/ScriptBeforeStartup.java         |    2 +-
+ org/gudy/azureus2/ui/common/Main.java              |    2 +-
+ org/gudy/azureus2/ui/common/StartServer.java       |    6 +-
+ org/gudy/azureus2/ui/swt/Main.java                 |    4 +-
+ org/gudy/azureus2/ui/swt/StartServer.java          |    6 +-
+ org/gudy/azureus2/ui/swt/StartSocket.java          |    4 +-
+ org/gudy/azureus2/ui/swt/osx/Start.java            |    2 +-
+ .../azureus2/ui/swt/updater/snippets/Main.java     |    2 +-
+ .../azureus2/ui/swt/updater/snippets/Started.java  |    4 +-
+ .../configsections/ConfigSectionConnection.java    |   18 ++--
+ .../ConfigSectionConnectionAdvanced.java           |    2 +-
+ .../configsections/ConfigSectionTrackerClient.java |    2 +-
+ 19 files changed, 164 insertions(+), 38 deletions(-)
+
+diff --git a/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java b/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
+index ada3ce6..a9b92d2 100644
+--- a/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
++++ b/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
+@@ -29,8 +29,8 @@ import java.io.*;
+ /**
+  * Single instance management is a bit of a mess. For some reason the UIs have their own implementations of clients and servers.
+  * We also have a more generic plugin-accessible single instance service that can be used by launchable plugins but don't give
+- * a generic mechanism for dealing with the basic mechanism used by the UIs (that run on 6880).
+- * I have introduced this class to give a programmatic way of passing arguments using the existing 6880 port. Perhaps one day
++ * a generic mechanism for dealing with the basic mechanism used by the UIs (that run on main local port).
++ * I have introduced this class to give a programmatic way of passing arguments using the existing local port. Perhaps one day
+  * the various UI implementations will be rewritten to use this...
+  * @author Parg
+  */
+@@ -69,9 +69,7 @@ AzureusCoreSingleInstanceClient
+ 			Socket	sock = null;
+ 			
+ 			try{
+-				sock = new Socket();
+-				
+-				sock.connect( new InetSocketAddress( "127.0.0.1", 6880 ), CONNECT_TIMEOUT );
++				sock = org.gudy.azureus2.core3.util.LocalSocketHelper.connect();
+ 				
+ 				sock.setSoTimeout( READ_TIMEOUT );
+ 				
+diff --git a/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java b/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
+index d74e5ef..4189790 100644
+--- a/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
++++ b/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
+@@ -370,7 +370,7 @@ public class IncomingSocketChannelManager
+ 		{
+ 			this_mon.enter();
+ 			
+-			if (tcp_listen_port < 0 || tcp_listen_port > 65535 || tcp_listen_port == 6880)
++			if (tcp_listen_port < 0 || tcp_listen_port >= 49152)
+ 			{
+ 				String msg = "Invalid incoming TCP listen port configured, " + tcp_listen_port + ". Port reset to default. Please check your config!";
+ 				Debug.out(msg);
+diff --git a/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java b/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
+index daa77dd..9354448 100644
+--- a/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
++++ b/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
+@@ -118,7 +118,7 @@ UDPNetworkManager
+ 						   return;
+ 					   }
+ 					   
+-					   if ( port < 0 || port > 65535 || port == 6880 ) {
++					   if ( port < 0 || port >= 49152 ) {
+ 						   
+ 					        String msg = "Invalid incoming UDP listen port configured, " +port+ ". The port has been reset. Please check your config!";
+ 					        
+@@ -151,7 +151,7 @@ UDPNetworkManager
+ 							   return;
+ 						   }
+ 						   
+-						   if ( port < 0 || port > 65535 || port == 6880 ) {
++						   if ( port < 0 || port >= 49152 ) {
+ 							   
+ 						        String msg = "Invalid incoming UDP non-data listen port configured, " +port+ ". The port has been reset. Please check your config!";
+ 						        
+diff --git a/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java b/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
+index 15a1912..d3d70cf 100644
+--- a/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
++++ b/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
+@@ -454,7 +454,7 @@ ConfigurationChecker
+ 	    
+ 	    	// reset invalid ports - single-instance socket port and (small) magnet uri listener port range
+ 	    
+-	    if ( tcp_port == 6880 || ( tcp_port >= 45100 && tcp_port <= 45103 )){
++	    if ( tcp_port >= 49152 || ( tcp_port >= 45100 && tcp_port <= 45103 )){
+ 	    
+ 	    	int	new_tcp_port	=  RandomUtils.generateRandomNetworkListenPort();
+ 	    	
+diff --git a/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java b/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
+index c8aec8d..18138a6 100644
+--- a/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
++++ b/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
+@@ -70,7 +70,7 @@ public class NatChecker {
+   {	
+     String check = "azureus_rand_" + String.valueOf( (int)(Math.random() * 100000) );
+     
+-    if ( port < 0 || port > 65535 || port == 6880 ){
++    if ( port < 0 || port >= 49152 ){
+     	
+     	result = NAT_UNABLE;
+     	
+diff --git a/org/gudy/azureus2/core3/util/LocalSocketHelper.java b/org/gudy/azureus2/core3/util/LocalSocketHelper.java
+new file mode 100644
+index 0000000..568efaa
+--- /dev/null
++++ b/org/gudy/azureus2/core3/util/LocalSocketHelper.java
+@@ -0,0 +1,128 @@
++/*
++ * Created on Aug 24, 2008
++ * Created by Stefano Maioli
++ * Copyright (C) 2008 Stefano Maioli, All Rights Reserved.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++package org.gudy.azureus2.core3.util;
++
++import java.io.*;
++import java.net.*;
++
++/**
++ *
++ * @author Stefano Maioli
++ */
++public class LocalSocketHelper {
++
++    static private LocalSocketHelper helper = null;
++
++    private int port;
++    private long key;
++    private boolean wasLocked;
++    private File lock;
++    private ServerSocket listenSocket = null;
++    private Socket outSocket = null;
++
++    private LocalSocketHelper() throws IOException {
++        String path = SystemProperties.getUserPath();
++        lock = new File(path, "localport.lock");
++        if(lock.exists()) {
++            DataInputStream inlock = new DataInputStream(new FileInputStream(lock));
++            port = inlock.readInt();
++            key = inlock.readLong();
++            inlock.close();
++            wasLocked = true;
++        } else {
++            key = new java.util.Random().nextLong();
++            do {
++                port = (int)(Math.random()*(65535-49152) + 49152);
++                try {
++                    listenSocket = new AuthServerSocket(port, 50, InetAddress.getByName("127.0.0.1"));
++                } catch(BindException ex) { listenSocket.close(); }
++            } while(!listenSocket.isBound());
++
++            DataOutputStream outlock = new DataOutputStream(
++                    new BufferedOutputStream(new FileOutputStream(lock)));
++            outlock.writeInt(port);
++            outlock.writeLong(key);
++            outlock.close();
++            lock.deleteOnExit();
++            wasLocked = false;
++        }
++    }
++
++    public static Socket connect() throws IOException {
++        if(helper == null) helper = new LocalSocketHelper();
++        if(helper.outSocket != null && helper.outSocket.isConnected())
++            return helper.outSocket;
++
++        if(!helper.wasLocked) throw new IOException("No previous instance to connect to.");
++
++        Socket s;
++        try {
++            s = new Socket("127.0.0.1", helper.port);
++            DataOutputStream out = new DataOutputStream(s.getOutputStream());
++            DataInputStream in = new DataInputStream(s.getInputStream());
++            out.writeLong(helper.key);
++            out.flush();
++            in.readByte();
++        } catch(IOException ex) {
++            helper.lock.delete();
++            helper = new LocalSocketHelper();
++            throw ex;
++        }
++        helper.outSocket = s;
++
++        return s;
++    }
++
++    public static ServerSocket listen() throws IOException {
++        try {
++            connect();
++        } catch(IOException ex) {}
++        if(helper.listenSocket != null)
++            return helper.listenSocket;
++        else {
++            throw new IOException("Other instance detected");
++        }
++    }
++
++    private class AuthServerSocket extends ServerSocket {
++
++        public AuthServerSocket(int port, int backlog, InetAddress bindAddr) throws IOException {
++            super(port, backlog, bindAddr);
++        }
++
++        //@Override
++        public Socket accept() throws IOException {
++            Socket s = super.accept();
++            DataInputStream in = new DataInputStream(s.getInputStream());
++            if(in.readLong() != key) {
++                in.close();
++                throw new SocketException("Connection closed: invalid authentication");
++            }
++            DataOutputStream out = new DataOutputStream(s.getOutputStream());
++            out.writeByte(1);
++            out.flush();
++            return s;
++        }
++
++        //@Override
++        public void close() throws IOException {
++        }
++
++    }
++}
+diff --git a/org/gudy/azureus2/core3/util/RandomUtils.java b/org/gudy/azureus2/core3/util/RandomUtils.java
+index 210f6ec..12bd5a2 100644
+--- a/org/gudy/azureus2/core3/util/RandomUtils.java
++++ b/org/gudy/azureus2/core3/util/RandomUtils.java
+@@ -70,7 +70,7 @@ RandomUtils
+ 	
+ 	
+ 	public static final int LISTEN_PORT_MIN = 10000;
+-	public static final int LISTEN_PORT_MAX = 65535;
++	public static final int LISTEN_PORT_MAX = 49151;
+ 	
+ 	
+ 	/**
+diff --git a/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java b/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
+index af273a6..e377dd1 100644
+--- a/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
++++ b/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
+@@ -42,7 +42,7 @@ public class ScriptBeforeStartup
+   		boolean argsSent = new AzureusCoreSingleInstanceClient().sendArgs(args, 500);
+   		if (argsSent) {
+   			// azureus was open..
+-  			String msg = "Passing startup args to already-running " + Constants.APP_NAME + " java process listening on [127.0.0.1: 6880]";
++  			String msg = "Passing startup args to already-running " + Constants.APP_NAME + " java process";
+   			log(msg);
+   			sysout.println("exit");
+   
+diff --git a/org/gudy/azureus2/ui/common/Main.java b/org/gudy/azureus2/ui/common/Main.java
+index 40cf3d7..6686913 100644
+--- a/org/gudy/azureus2/ui/common/Main.java
++++ b/org/gudy/azureus2/ui/common/Main.java
+@@ -358,7 +358,7 @@ public class Main {
+         
+ 		// NOTE - this formatting is also used by AzureusCoreSingleInstanceClient and other org.gudy.azureus2.ui.swt.StartSocket
+         
+-        sck = new Socket("127.0.0.1",6880);
++        sck = org.gudy.azureus2.core3.util.LocalSocketHelper.connect();
+         pw = new PrintWriter(new OutputStreamWriter(sck.getOutputStream()));
+         StringBuffer buffer = new StringBuffer(AzureusCoreSingleInstanceClient.ACCESS_STRING+";args;");
+         for(int i = 0 ; i < args.length ; i++) {
+diff --git a/org/gudy/azureus2/ui/common/StartServer.java b/org/gudy/azureus2/ui/common/StartServer.java
+index c5f5603..3b46395 100644
+--- a/org/gudy/azureus2/ui/common/StartServer.java
++++ b/org/gudy/azureus2/ui/common/StartServer.java
+@@ -35,16 +35,16 @@ public class StartServer extends Thread {
+   public StartServer() {
+     super("Start Server");
+     try {
+-      socket = new ServerSocket(6880, 50, InetAddress.getByName("127.0.0.1")); //NOLAR: only bind to localhost
++      socket = org.gudy.azureus2.core3.util.LocalSocketHelper.listen(); //NOLAR: only bind to localhost
+       state = STATE_LISTENING;
+-      Logger.getLogger("azureus2").info("StartServer: listening on 127.0.0.1:6880 for passed torrent info");
++      Logger.getLogger("azureus2").info("StartServer: listening on 127.0.0.1:" + socket.getLocalPort() + " for passed torrent info");
+     } catch (Exception e) {
+       state = STATE_FAULTY;
+ 
+ 		// DON'T USE LOGGER here as we DON't want to initialise all the logger stuff
+ 		// and in particular AEDiagnostics config dirty stuff!!!!
+ 
+-      System.out.println( "StartServer ERROR: unable to bind to 127.0.0.1:6880 for passed torrent info");
++      System.out.println( "StartServer ERROR: unable to bind to a local port for passed torrent info");
+     }
+   }
+ 
+diff --git a/org/gudy/azureus2/ui/swt/Main.java b/org/gudy/azureus2/ui/swt/Main.java
+index d9e8463..ccc2588 100644
+--- a/org/gudy/azureus2/ui/swt/Main.java
++++ b/org/gudy/azureus2/ui/swt/Main.java
+@@ -215,13 +215,13 @@ Main
+     }
+     
+     
+-     if( another_instance ) {  //looks like there's already a process listening on 127.0.0.1:6880
++     if( another_instance ) {  //looks like there's already a process listening
+     	//attempt to pass args to existing instance
+     	StartSocket ss = new StartSocket(args);
+     	
+     	if( !ss.sendArgs() ) {  //arg passing attempt failed, so start core anyway
+     		another_instance = false;
+-    		String msg = "There appears to be another program process already listening on socket [127.0.0.1: 6880].\nLoading of torrents via command line parameter will fail until this is fixed.";
++    		String msg = "Impossible to bind to a local socket.\nLoading of torrents via command line parameter will fail until this is fixed.";
+     		System.out.println( msg );
+     		Logger.log(new LogAlert(LogAlert.REPEATABLE, LogAlert.AT_WARNING, msg));
+     	}
+diff --git a/org/gudy/azureus2/ui/swt/StartServer.java b/org/gudy/azureus2/ui/swt/StartServer.java
+index 88f520e..e354014 100644
+--- a/org/gudy/azureus2/ui/swt/StartServer.java
++++ b/org/gudy/azureus2/ui/swt/StartServer.java
+@@ -68,13 +68,13 @@ StartServer
+     	// DON'T USE LOGGER HERE DUE TO COMMENTS BELOW - IF AZ ALREADY RUNNING THEN THE SERVERSOCKET
+     	// CALL WILL THROW AN EXCEPTION 
+     	
+-    	socket = new ServerSocket(6880, 50, InetAddress.getByName("127.0.0.1")); //NOLAR: only bind to localhost
++    	socket = org.gudy.azureus2.core3.util.LocalSocketHelper.listen(); //NOLAR: only bind to localhost
+         
+         state = STATE_LISTENING;    
+         
+         if (Logger.isEnabled())
+         	Logger.log(new LogEvent(LOGID, "StartServer: listening on "
+-        			+ "127.0.0.1:6880 for passed torrent info"));
++        			+ "127.0.0.1:" + socket.getLocalPort() + " for passed torrent info"));
+     
+     }catch (Throwable t) {
+     	
+@@ -84,7 +84,7 @@ StartServer
+       state = STATE_FAULTY;
+       String reason = t.getMessage() == null ? "<>" : t.getMessage();
+ 
+-      System.out.println( "StartServer ERROR: unable" + " to bind to 127.0.0.1:6880 listening"
++      System.out.println( "StartServer ERROR: unable" + " to bind to a local port listening"
+ 							+ " for passed torrent info: " + reason);
+     }
+   }
+diff --git a/org/gudy/azureus2/ui/swt/StartSocket.java b/org/gudy/azureus2/ui/swt/StartSocket.java
+index 2071c96..d6d73de 100644
+--- a/org/gudy/azureus2/ui/swt/StartSocket.java
++++ b/org/gudy/azureus2/ui/swt/StartSocket.java
+@@ -49,14 +49,14 @@ public class StartSocket {
+     	Socket sck = null;
+     	PrintWriter pw = null;
+     	try {
+-    		String msg = "StartSocket: passing startup args to already-running Azureus java process listening on [127.0.0.1: 6880]";
++    		String msg = "StartSocket: passing startup args to already-running Azureus java process";
+     		
+     			// DON'T USE LOGGER here as we DON't want to initialise all the logger stuff
+     			// and in particular AEDiagnostics config dirty stuff!!!!
+     		
+     		System.out.println( msg );
+        	
+-    		sck = new Socket("127.0.0.1", 6880);
++    		sck = org.gudy.azureus2.core3.util.LocalSocketHelper.connect();
+          
+     			// NOTE - this formatting is also used by AzureusCoreSingleInstanceClient and other org.gudy.azureus2.ui.common.Main.StartSocket
+     		
+diff --git a/org/gudy/azureus2/ui/swt/osx/Start.java b/org/gudy/azureus2/ui/swt/osx/Start.java
+index 5f20cd3..c70a78e 100644
+--- a/org/gudy/azureus2/ui/swt/osx/Start.java
++++ b/org/gudy/azureus2/ui/swt/osx/Start.java
+@@ -38,7 +38,7 @@ public class Start {
+       try {          
+         System.out.println("StartSocket: passing startup args to already-running Azureus java process.");
+         
+-        sck = new Socket("127.0.0.1", 6880);
++        sck = org.gudy.azureus2.core3.util.LocalSocketHelper.connect();
+         
+         pw = new PrintWriter(new OutputStreamWriter(sck.getOutputStream(),"UTF8"));
+         
+diff --git a/org/gudy/azureus2/ui/swt/updater/snippets/Main.java b/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
+index fe96aab..99ffec1 100644
+--- a/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
++++ b/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
+@@ -36,7 +36,7 @@ public class Main {
+     
+     public static void main(String args[]) {
+         try {
+-        	ServerSocket server = new ServerSocket(6880, 50, InetAddress.getByName("127.0.0.1"));
++          ServerSocket server = org.gudy.azureus2.core3.util.LocalSocketHelper.listen();
+           spawnStarted();
+           server.close();
+         } catch(Exception e) {
+diff --git a/org/gudy/azureus2/ui/swt/updater/snippets/Started.java b/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
+index 023a557..7619e99 100644
+--- a/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
++++ b/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
+@@ -36,11 +36,11 @@ public class Started {
+         try {
+             while(!ok) {
+               try{
+-                ServerSocket server = new ServerSocket(6880, 50, InetAddress.getByName("127.0.0.1"));
++                ServerSocket server = org.gudy.azureus2.core3.util.LocalSocketHelper.listen();
+                 ok = true;
+                 server.close();
+               } catch(Exception e) {
+-                Logger.log("Exception while trying to bind on port 6880 : " + e);
++                Logger.log("Exception while trying to bind to local port : " + e);
+                 Thread.sleep(1000);
+               }
+             }
+diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
+index 00171c7..b321361 100644
+--- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
++++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
+@@ -102,14 +102,14 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+ 		label.setLayoutData(gridData);
+ 
+ 		final IntParameter tcplisten = new IntParameter(cMiniArea,
+-				"TCP.Listen.Port", 1, 65535);
++				"TCP.Listen.Port", 1, 49151);
+ 		gridData = new GridData();
+ 		tcplisten.setLayoutData(gridData);
+ 
+ 		tcplisten.addChangeListener(new ParameterChangeAdapter() {
+ 			public void intParameterChanging(Parameter p, int toValue) {
+-				if (toValue == 6880) {
+-					toValue = 6881;
++				if (toValue > 49151) {
++					toValue = 49151;
+ 					tcplisten.setValue(toValue);
+ 				}
+ 
+@@ -129,7 +129,7 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+ 			label.setLayoutData(gridData);
+ 
+ 			final IntParameter udp_listen = new IntParameter(cMiniArea,
+-					"UDP.Listen.Port", 1, 65535);
++					"UDP.Listen.Port", 1, 49151);
+ 			gridData = new GridData();
+ 			udp_listen.setLayoutData(gridData);
+ 
+@@ -137,8 +137,8 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+ 			
+ 			udp_listen.addChangeListener(new ParameterChangeAdapter() {
+ 				public void intParameterChanging(Parameter p, int toValue) {
+-					if (toValue == 6880) {
+-						toValue = 6881;
++					if (toValue > 49151) {
++						toValue = 49151;
+ 						udp_listen.setValue(toValue);
+ 					}
+ 
+@@ -173,8 +173,8 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+ 					new ParameterChangeAdapter() 
+ 					{
+ 						public void intParameterChanging(Parameter p, int toValue) {
+-							if (toValue == 6880) {
+-								toValue = 6881;
++							if (toValue > 49151) {
++								toValue = 49151;
+ 								non_data_udp_listen.setValue(toValue);
+ 							}
+ 						}
+@@ -189,7 +189,7 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+ 									
+ 									int udp_listen_port = udp_listen.getValue();
+ 			
+-									if ( udp_listen_port != 6880 ){
++									if ( udp_listen_port < 49152 ){
+ 										
+ 										COConfigurationManager.setParameter( "UDP.NonData.Listen.Port", udp_listen_port );
+ 										
+diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
+index 0b1ad25..bb5ce14 100644
+--- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
++++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
+@@ -168,7 +168,7 @@ public class ConfigSectionConnectionAdvanced implements UISWTConfigSection {
+ 		Label lpbind = new Label(gSocket, SWT.NULL);
+ 		Messages.setLanguageText(lpbind, CFG_PREFIX + "bind_port");
+ 		final IntParameter port_bind = new IntParameter(gSocket,
+-				"network.bind.local.port", 0, 65535);
++				"network.bind.local.port", 0, 49151);
+ 		gridData = new GridData();
+ 		port_bind.setLayoutData(gridData);
+ 		
+diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
+index fce3910..fabed84 100644
+--- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
++++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
+@@ -176,7 +176,7 @@ ConfigSectionTrackerClient
+     		try
+ 			{
+     			int portVal = Integer.parseInt(toValue);
+-				if(portVal >= 0 && portVal <= 65535)
++				if(portVal >= 0 && portVal <= 49151)
+ 					return;
+ 			} catch (NumberFormatException e) {}
+ 			p.setValue("");
+-- 
+tg: (49ad0c1..) fixes/multiuser (depends on: fixes/sunsecurity)

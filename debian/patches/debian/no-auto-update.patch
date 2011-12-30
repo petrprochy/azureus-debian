@@ -1,0 +1,64 @@
+Disable auto-updates of the azureus platform, since we want to use debian packages
+to manage updates instead.
+
+Index: azureus/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java
+===================================================================
+--- azureus.orig/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java	2011-06-07 22:07:05.588553689 +0100
++++ azureus/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java	2011-06-07 22:07:57.567719664 +0100
+@@ -255,9 +255,9 @@
+ 	
+ 	def.put("Default save path", f.getAbsolutePath());
+     
+-    def.put("update.start",TRUE);
+-    def.put("update.periodic",TRUE);
+-    def.put("update.opendialog",TRUE);
++    def.put("update.start",FALSE);
++    def.put("update.periodic", FALSE);
++    def.put("update.opendialog",FALSE);
+     def.put("update.autodownload", FALSE);
+ 
+     def.put("Send Version Info", TRUE);
+@@ -451,7 +451,7 @@
+     def.put( "locale", Locale.getDefault().toString() );
+     def.put( "locale.set.complete.count", ZERO);
+     def.put( "Password Confirm", null );
+-    def.put( "Auto Update", TRUE );
++    def.put( "Auto Update", FALSE );
+     def.put( "Alert on close", FALSE );
+     def.put( "diskmanager.friendly.hashchecking", FALSE );
+     def.put( "diskmanager.hashchecking.smallestfirst", TRUE );    
+Index: azureus/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java
+===================================================================
+--- azureus.orig/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java	2011-06-07 22:15:58.037720459 +0100
++++ azureus/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java	2011-06-07 22:23:03.417720345 +0100
+@@ -86,7 +86,7 @@
+ 		
+ 		final PluginConfig	plugin_config = plugin_interface.getPluginconfig();
+ 		
+-		boolean enabled = plugin_config.getPluginBooleanParameter( "enable.update", true );
++		boolean enabled = plugin_config.getPluginBooleanParameter( "enable.update", false );
+ 
+ 		model.setConfigSectionID(PLUGIN_CONFIGSECTION_ID);
+ 		model.getStatus().setText( enabled?"Running":"Optional checks disabled" );
+@@ -115,7 +115,7 @@
+ 		
+ 		BasicPluginConfigModel config = ui_manager.createBasicPluginConfigModel(ConfigSection.SECTION_PLUGINS, PLUGIN_CONFIGSECTION_ID);
+ 		
+-		config.addBooleanParameter2( "enable.update", "Plugin.pluginupdate.enablecheck", true );
++		config.addBooleanParameter2( "enable.update", "Plugin.pluginupdate.enablecheck", false );
+ 				
+ 		plugin_interface.addEventListener(
+ 			new PluginEventListener()
+Index: azureus/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java
+===================================================================
+--- azureus.orig/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java	2011-06-07 22:19:06.657720379 +0100
++++ azureus/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java	2011-06-07 22:19:22.817720827 +0100
+@@ -137,7 +137,7 @@
+ 
+ 			defaults.addParameter("window.maximized", true);
+ 
+-			defaults.addParameter("update.autodownload", true);
++			defaults.addParameter("update.autodownload", false);
+ 			
+ 			defaults.addParameter("suppress_file_download_dialog", true);
+ 			
