@@ -1,7 +1,7 @@
 debian/speedtest.diff -p1
 debian/update-disable.patch
 fixes/multiuser.diff -p1
-fixes/platform.diff -p1
+fixes/platform.diff
 debian/no-auto-update.patch
 fixes/ant-scripts.diff
 fixes/swt-gtk-api.patch
