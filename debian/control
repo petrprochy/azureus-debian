@@ -16,7 +16,7 @@ Package: azureus
 Architecture: all
 Depends: openjdk-6-jre | sun-java5-jre | sun-java6-jre, 
  libcommons-cli-java, liblog4j1.2-java, libswt-gtk-3-java, 
- java-wrappers, libswt-gnome-gtk-3-jni, ${misc:Depends}
+ java-wrappers, libswt-gnome-gtk-3-jni, libswt-cairo-gtk-3-jni, ${misc:Depends}
 Recommends: vuze
 Description: BitTorrent client
  BitTorrent is a peer-to-peer file distribution tool.
@@ -28,7 +28,7 @@ Description: BitTorrent client
 
 Package: vuze
 Architecture: all
-Depends: azureus, libswt-cairo-gtk-3-jni, libswt-gnome-gtk-3-jni,
+Depends: azureus, libswt-gnome-gtk-3-jni,
  libswt-webkit-gtk-3-jni | libswt-mozilla-gtk-3-jni, ${misc:Depends}
 Description: Multimedia BitTorrent client
  BitTorrent is a peer-to-peer file distribution tool.
