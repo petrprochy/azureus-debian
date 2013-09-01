@@ -31,11 +31,11 @@ Signed-off-by: Adrian Perez <adrianperez.deb@gmail.com>
  .../configsections/ConfigSectionTrackerClient.java |    2 +-
  19 files changed, 164 insertions(+), 38 deletions(-)
 
-diff --git a/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java b/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
-index ada3ce6..a9b92d2 100644
---- a/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
-+++ b/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
-@@ -29,8 +29,8 @@ import java.io.*;
+Index: azureus-5.1.0.0/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java
+===================================================================
+--- azureus-5.1.0.0.orig/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java	2012-07-12 22:36:26.000000000 +0200
++++ azureus-5.1.0.0/com/aelitis/azureus/core/impl/AzureusCoreSingleInstanceClient.java	2013-09-01 23:37:52.290740151 +0200
+@@ -29,8 +29,8 @@
  /**
   * Single instance management is a bit of a mess. For some reason the UIs have their own implementations of clients and servers.
   * We also have a more generic plugin-accessible single instance service that can be used by launchable plugins but don't give
@@ -46,7 +46,7 @@ index ada3ce6..a9b92d2 100644
   * the various UI implementations will be rewritten to use this...
   * @author Parg
   */
-@@ -69,9 +69,7 @@ AzureusCoreSingleInstanceClient
+@@ -69,9 +69,7 @@
  			Socket	sock = null;
  			
  			try{
@@ -57,11 +57,11 @@ index ada3ce6..a9b92d2 100644
  				
  				sock.setSoTimeout( READ_TIMEOUT );
  				
-diff --git a/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java b/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
-index d74e5ef..4189790 100644
---- a/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
-+++ b/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
-@@ -370,7 +370,7 @@ public class IncomingSocketChannelManager
+Index: azureus-5.1.0.0/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java
+===================================================================
+--- azureus-5.1.0.0.orig/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java	2012-07-12 22:36:14.000000000 +0200
++++ azureus-5.1.0.0/com/aelitis/azureus/core/networkmanager/impl/tcp/IncomingSocketChannelManager.java	2013-09-01 23:37:52.290740151 +0200
+@@ -372,7 +372,7 @@
  		{
  			this_mon.enter();
  			
@@ -70,11 +70,11 @@ index d74e5ef..4189790 100644
  			{
  				String msg = "Invalid incoming TCP listen port configured, " + tcp_listen_port + ". Port reset to default. Please check your config!";
  				Debug.out(msg);
-diff --git a/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java b/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
-index daa77dd..9354448 100644
---- a/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
-+++ b/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
-@@ -118,7 +118,7 @@ UDPNetworkManager
+Index: azureus-5.1.0.0/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java
+===================================================================
+--- azureus-5.1.0.0.orig/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java	2012-07-12 22:36:12.000000000 +0200
++++ azureus-5.1.0.0/com/aelitis/azureus/core/networkmanager/impl/udp/UDPNetworkManager.java	2013-09-01 23:37:52.290740151 +0200
+@@ -116,7 +116,7 @@
  						   return;
  					   }
  					   
@@ -83,7 +83,7 @@ index daa77dd..9354448 100644
  						   
  					        String msg = "Invalid incoming UDP listen port configured, " +port+ ". The port has been reset. Please check your config!";
  					        
-@@ -151,7 +151,7 @@ UDPNetworkManager
+@@ -149,7 +149,7 @@
  							   return;
  						   }
  						   
@@ -92,11 +92,11 @@ index daa77dd..9354448 100644
  							   
  						        String msg = "Invalid incoming UDP non-data listen port configured, " +port+ ". The port has been reset. Please check your config!";
  						        
-diff --git a/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java b/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
-index 15a1912..d3d70cf 100644
---- a/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
-+++ b/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
-@@ -454,7 +454,7 @@ ConfigurationChecker
+Index: azureus-5.1.0.0/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java	2013-08-13 17:32:44.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/core3/config/impl/ConfigurationChecker.java	2013-09-01 23:37:52.294742174 +0200
+@@ -576,7 +576,7 @@
  	    
  	    	// reset invalid ports - single-instance socket port and (small) magnet uri listener port range
  	    
@@ -105,11 +105,11 @@ index 15a1912..d3d70cf 100644
  	    
  	    	int	new_tcp_port	=  RandomUtils.generateRandomNetworkListenPort();
  	    	
-diff --git a/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java b/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
-index c8aec8d..18138a6 100644
---- a/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
-+++ b/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
-@@ -70,7 +70,7 @@ public class NatChecker {
+Index: azureus-5.1.0.0/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java	2012-07-12 22:34:18.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/core3/ipchecker/natchecker/NatChecker.java	2013-09-01 23:37:52.294742174 +0200
+@@ -75,7 +75,7 @@
    {	
      String check = "azureus_rand_" + String.valueOf( (int)(Math.random() * 100000) );
      
@@ -118,11 +118,10 @@ index c8aec8d..18138a6 100644
      	
      	result = NAT_UNABLE;
      	
-diff --git a/org/gudy/azureus2/core3/util/LocalSocketHelper.java b/org/gudy/azureus2/core3/util/LocalSocketHelper.java
-new file mode 100644
-index 0000000..568efaa
---- /dev/null
-+++ b/org/gudy/azureus2/core3/util/LocalSocketHelper.java
+Index: azureus-5.1.0.0/org/gudy/azureus2/core3/util/LocalSocketHelper.java
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ azureus-5.1.0.0/org/gudy/azureus2/core3/util/LocalSocketHelper.java	2013-09-01 23:37:52.294742174 +0200
 @@ -0,0 +1,128 @@
 +/*
 + * Created on Aug 24, 2008
@@ -252,11 +251,11 @@ index 0000000..568efaa
 +
 +    }
 +}
-diff --git a/org/gudy/azureus2/core3/util/RandomUtils.java b/org/gudy/azureus2/core3/util/RandomUtils.java
-index 210f6ec..12bd5a2 100644
---- a/org/gudy/azureus2/core3/util/RandomUtils.java
-+++ b/org/gudy/azureus2/core3/util/RandomUtils.java
-@@ -70,7 +70,7 @@ RandomUtils
+Index: azureus-5.1.0.0/org/gudy/azureus2/core3/util/RandomUtils.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/core3/util/RandomUtils.java	2013-02-15 22:09:44.000000000 +0100
++++ azureus-5.1.0.0/org/gudy/azureus2/core3/util/RandomUtils.java	2013-09-01 23:37:52.294742174 +0200
+@@ -80,7 +80,7 @@
  	
  	
  	public static final int LISTEN_PORT_MIN = 10000;
@@ -265,11 +264,11 @@ index 210f6ec..12bd5a2 100644
  	
  	
  	/**
-diff --git a/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java b/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
-index af273a6..e377dd1 100644
---- a/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
-+++ b/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
-@@ -42,7 +42,7 @@ public class ScriptBeforeStartup
+Index: azureus-5.1.0.0/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java	2012-07-12 22:34:02.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/platform/unix/ScriptBeforeStartup.java	2013-09-01 23:37:52.294742174 +0200
+@@ -42,7 +42,7 @@
    		boolean argsSent = new AzureusCoreSingleInstanceClient().sendArgs(args, 500);
    		if (argsSent) {
    			// azureus was open..
@@ -278,11 +277,11 @@ index af273a6..e377dd1 100644
    			log(msg);
    			sysout.println("exit");
    
-diff --git a/org/gudy/azureus2/ui/common/Main.java b/org/gudy/azureus2/ui/common/Main.java
-index 40cf3d7..6686913 100644
---- a/org/gudy/azureus2/ui/common/Main.java
-+++ b/org/gudy/azureus2/ui/common/Main.java
-@@ -358,7 +358,7 @@ public class Main {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/common/Main.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/common/Main.java	2012-07-12 22:36:52.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/common/Main.java	2013-09-01 23:37:52.294742174 +0200
+@@ -358,7 +358,7 @@
          
  		// NOTE - this formatting is also used by AzureusCoreSingleInstanceClient and other org.gudy.azureus2.ui.swt.StartSocket
          
@@ -291,11 +290,11 @@ index 40cf3d7..6686913 100644
          pw = new PrintWriter(new OutputStreamWriter(sck.getOutputStream()));
          StringBuffer buffer = new StringBuffer(AzureusCoreSingleInstanceClient.ACCESS_STRING+";args;");
          for(int i = 0 ; i < args.length ; i++) {
-diff --git a/org/gudy/azureus2/ui/common/StartServer.java b/org/gudy/azureus2/ui/common/StartServer.java
-index c5f5603..3b46395 100644
---- a/org/gudy/azureus2/ui/common/StartServer.java
-+++ b/org/gudy/azureus2/ui/common/StartServer.java
-@@ -35,16 +35,16 @@ public class StartServer extends Thread {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/common/StartServer.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/common/StartServer.java	2012-07-12 22:36:52.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/common/StartServer.java	2013-09-01 23:37:52.294742174 +0200
+@@ -35,16 +35,16 @@
    public StartServer() {
      super("Start Server");
      try {
@@ -315,18 +314,20 @@ index c5f5603..3b46395 100644
      }
    }
  
-diff --git a/org/gudy/azureus2/ui/swt/Main.java b/org/gudy/azureus2/ui/swt/Main.java
-index d9e8463..ccc2588 100644
---- a/org/gudy/azureus2/ui/swt/Main.java
-+++ b/org/gudy/azureus2/ui/swt/Main.java
-@@ -215,13 +215,13 @@ Main
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/Main.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/Main.java	2013-08-13 17:32:56.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/Main.java	2013-09-01 23:41:35.163224772 +0200
+@@ -252,7 +252,7 @@
      }
      
      
 -     if( another_instance ) {  //looks like there's already a process listening on 127.0.0.1:6880
 +     if( another_instance ) {  //looks like there's already a process listening
      	//attempt to pass args to existing instance
-     	StartSocket ss = new StartSocket(args);
+     	 
+     	 // First, do some OSX magic because parameters are passed via OpenDocument API and other callbacks
+@@ -262,7 +262,7 @@
      	
      	if( !ss.sendArgs() ) {  //arg passing attempt failed, so start core anyway
      		another_instance = false;
@@ -335,11 +336,11 @@ index d9e8463..ccc2588 100644
      		System.out.println( msg );
      		Logger.log(new LogAlert(LogAlert.REPEATABLE, LogAlert.AT_WARNING, msg));
      	}
-diff --git a/org/gudy/azureus2/ui/swt/StartServer.java b/org/gudy/azureus2/ui/swt/StartServer.java
-index 88f520e..e354014 100644
---- a/org/gudy/azureus2/ui/swt/StartServer.java
-+++ b/org/gudy/azureus2/ui/swt/StartServer.java
-@@ -68,13 +68,13 @@ StartServer
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/StartServer.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/StartServer.java	2013-08-13 17:32:56.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/StartServer.java	2013-09-01 23:37:52.298744200 +0200
+@@ -71,13 +71,13 @@
      	// DON'T USE LOGGER HERE DUE TO COMMENTS BELOW - IF AZ ALREADY RUNNING THEN THE SERVERSOCKET
      	// CALL WILL THROW AN EXCEPTION 
      	
@@ -355,7 +356,7 @@ index 88f520e..e354014 100644
      
      }catch (Throwable t) {
      	
-@@ -84,7 +84,7 @@ StartServer
+@@ -87,7 +87,7 @@
        state = STATE_FAULTY;
        String reason = t.getMessage() == null ? "<>" : t.getMessage();
  
@@ -364,11 +365,11 @@ index 88f520e..e354014 100644
  							+ " for passed torrent info: " + reason);
      }
    }
-diff --git a/org/gudy/azureus2/ui/swt/StartSocket.java b/org/gudy/azureus2/ui/swt/StartSocket.java
-index 2071c96..d6d73de 100644
---- a/org/gudy/azureus2/ui/swt/StartSocket.java
-+++ b/org/gudy/azureus2/ui/swt/StartSocket.java
-@@ -49,14 +49,14 @@ public class StartSocket {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/StartSocket.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/StartSocket.java	2012-07-12 22:35:14.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/StartSocket.java	2013-09-01 23:37:52.298744200 +0200
+@@ -49,14 +49,14 @@
      	Socket sck = null;
      	PrintWriter pw = null;
      	try {
@@ -385,11 +386,11 @@ index 2071c96..d6d73de 100644
           
      			// NOTE - this formatting is also used by AzureusCoreSingleInstanceClient and other org.gudy.azureus2.ui.common.Main.StartSocket
      		
-diff --git a/org/gudy/azureus2/ui/swt/osx/Start.java b/org/gudy/azureus2/ui/swt/osx/Start.java
-index 5f20cd3..c70a78e 100644
---- a/org/gudy/azureus2/ui/swt/osx/Start.java
-+++ b/org/gudy/azureus2/ui/swt/osx/Start.java
-@@ -38,7 +38,7 @@ public class Start {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/osx/Start.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/osx/Start.java	2012-07-12 22:35:20.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/osx/Start.java	2013-09-01 23:37:52.298744200 +0200
+@@ -38,7 +38,7 @@
        try {          
          System.out.println("StartSocket: passing startup args to already-running Azureus java process.");
          
@@ -398,11 +399,11 @@ index 5f20cd3..c70a78e 100644
          
          pw = new PrintWriter(new OutputStreamWriter(sck.getOutputStream(),"UTF8"));
          
-diff --git a/org/gudy/azureus2/ui/swt/updater/snippets/Main.java b/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
-index fe96aab..99ffec1 100644
---- a/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
-+++ b/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
-@@ -36,7 +36,7 @@ public class Main {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/updater/snippets/Main.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/updater/snippets/Main.java	2012-07-12 22:35:08.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/updater/snippets/Main.java	2013-09-01 23:37:52.298744200 +0200
+@@ -36,7 +36,7 @@
      
      public static void main(String args[]) {
          try {
@@ -411,11 +412,11 @@ index fe96aab..99ffec1 100644
            spawnStarted();
            server.close();
          } catch(Exception e) {
-diff --git a/org/gudy/azureus2/ui/swt/updater/snippets/Started.java b/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
-index 023a557..7619e99 100644
---- a/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
-+++ b/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
-@@ -36,11 +36,11 @@ public class Started {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/updater/snippets/Started.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/updater/snippets/Started.java	2012-07-12 22:35:08.000000000 +0200
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/updater/snippets/Started.java	2013-09-01 23:37:52.298744200 +0200
+@@ -36,11 +36,11 @@
          try {
              while(!ok) {
                try{
@@ -429,11 +430,11 @@ index 023a557..7619e99 100644
                  Thread.sleep(1000);
                }
              }
-diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
-index 00171c7..b321361 100644
---- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
-+++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
-@@ -102,14 +102,14 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java	2013-02-15 22:09:54.000000000 +0100
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnection.java	2013-09-01 23:37:52.298744200 +0200
+@@ -101,14 +101,14 @@
  		label.setLayoutData(gridData);
  
  		final IntParameter tcplisten = new IntParameter(cMiniArea,
@@ -451,7 +452,7 @@ index 00171c7..b321361 100644
  					tcplisten.setValue(toValue);
  				}
  
-@@ -129,7 +129,7 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+@@ -128,7 +128,7 @@
  			label.setLayoutData(gridData);
  
  			final IntParameter udp_listen = new IntParameter(cMiniArea,
@@ -460,7 +461,7 @@ index 00171c7..b321361 100644
  			gridData = new GridData();
  			udp_listen.setLayoutData(gridData);
  
-@@ -137,8 +137,8 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+@@ -136,8 +136,8 @@
  			
  			udp_listen.addChangeListener(new ParameterChangeAdapter() {
  				public void intParameterChanging(Parameter p, int toValue) {
@@ -471,7 +472,7 @@ index 00171c7..b321361 100644
  						udp_listen.setValue(toValue);
  					}
  
-@@ -173,8 +173,8 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+@@ -172,8 +172,8 @@
  					new ParameterChangeAdapter() 
  					{
  						public void intParameterChanging(Parameter p, int toValue) {
@@ -482,7 +483,7 @@ index 00171c7..b321361 100644
  								non_data_udp_listen.setValue(toValue);
  							}
  						}
-@@ -189,7 +189,7 @@ public class ConfigSectionConnection implements UISWTConfigSection {
+@@ -188,7 +188,7 @@
  									
  									int udp_listen_port = udp_listen.getValue();
  			
@@ -491,11 +492,11 @@ index 00171c7..b321361 100644
  										
  										COConfigurationManager.setParameter( "UDP.NonData.Listen.Port", udp_listen_port );
  										
-diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
-index 0b1ad25..bb5ce14 100644
---- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
-+++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
-@@ -168,7 +168,7 @@ public class ConfigSectionConnectionAdvanced implements UISWTConfigSection {
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java	2012-12-14 01:47:24.000000000 +0100
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionConnectionAdvanced.java	2013-09-01 23:37:52.302746215 +0200
+@@ -184,7 +184,7 @@
  		Label lpbind = new Label(gSocket, SWT.NULL);
  		Messages.setLanguageText(lpbind, CFG_PREFIX + "bind_port");
  		final IntParameter port_bind = new IntParameter(gSocket,
@@ -504,11 +505,11 @@ index 0b1ad25..bb5ce14 100644
  		gridData = new GridData();
  		port_bind.setLayoutData(gridData);
  		
-diff --git a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
-index fce3910..fabed84 100644
---- a/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
-+++ b/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
-@@ -176,7 +176,7 @@ ConfigSectionTrackerClient
+Index: azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java
+===================================================================
+--- azureus-5.1.0.0.orig/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java	2012-12-14 01:47:24.000000000 +0100
++++ azureus-5.1.0.0/org/gudy/azureus2/ui/swt/views/configsections/ConfigSectionTrackerClient.java	2013-09-01 23:37:52.302746215 +0200
+@@ -218,7 +218,7 @@
      		try
  			{
      			int portVal = Integer.parseInt(toValue);
@@ -517,5 +518,3 @@ index fce3910..fabed84 100644
  					return;
  			} catch (NumberFormatException e) {}
  			p.setValue("");
--- 
-tg: (49ad0c1..) fixes/multiuser (depends on: fixes/sunsecurity)
