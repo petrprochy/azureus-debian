@@ -1,3 +1,9 @@
+azureus (5.1.0.0-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Petr Prochazka <petrprochy@gmail.com>  Sun, 01 Sep 2013 23:22:32 +0200
+
 azureus (5.0.0.0-1) stable; urgency=low
 
   * New upstream release
