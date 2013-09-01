@@ -1,7 +1,9 @@
-azureus (5.1.0.0-2) stable; urgency=low
+azureus (5.1.0.0-3) stable; urgency=low
 
+  * Corrected version and distribution
 
- -- Petr Prochazka <petrprochy@gmail.com>  Sun, 01 Sep 2013 23:54:09 +0200
+ -- Petr Prochazka <petrprochy@gmail.com>  Mon, 02 Sep 2013 00:08:18 +0200
+
 
 azureus (5.1.0.0-1) unstable; urgency=low
 
