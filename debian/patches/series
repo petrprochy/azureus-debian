@@ -4,4 +4,3 @@ fixes/multiuser.diff
 fixes/platform.diff
 debian/no-auto-update.patch
 fixes/ant-scripts.diff
-fixes/swt-gtk-api.patch
