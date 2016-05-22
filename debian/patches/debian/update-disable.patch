@@ -1,10 +1,10 @@
-Index: com/aelitis/azureus/ui/swt/Initializer.java
+Index: azureus-5.7.1.0/com/aelitis/azureus/ui/swt/Initializer.java
 ===================================================================
---- azureus/com/aelitis/azureus/ui/swt/Initializer.java	(revision )
-+++ azureus/com/aelitis/azureus/ui/swt/Initializer.java	(revision )
-@@ -50,8 +50,10 @@
- import org.gudy.azureus2.ui.swt.pluginsinstaller.InstallPluginWizard;
+--- azureus-5.7.1.0.orig/com/aelitis/azureus/ui/swt/Initializer.java	2015-07-23 23:11:50.000000000 +0200
++++ azureus-5.7.1.0/com/aelitis/azureus/ui/swt/Initializer.java	2016-02-23 11:46:14.935957918 +0100
+@@ -47,8 +47,10 @@
  import org.gudy.azureus2.ui.swt.progress.ProgressWindow;
+ import org.gudy.azureus2.ui.swt.shells.MessageBoxShell;
  import org.gudy.azureus2.ui.swt.update.UpdateMonitor;
 +/* --- Adrian Perez: Don't initialize SWTUpdateChecker in Debian.
  import org.gudy.azureus2.ui.swt.updater2.PreUpdateChecker;
@@ -13,7 +13,7 @@ Index: com/aelitis/azureus/ui/swt/Initializer.java
  
  import com.aelitis.azureus.core.*;
  import com.aelitis.azureus.core.messenger.ClientMessageContext;
-@@ -446,12 +448,16 @@
+@@ -447,12 +449,16 @@
  					}
  					
  					reportCurrentTaskByKey("splash.openViews");
@@ -26,45 +26,43 @@ Index: com/aelitis/azureus/ui/swt/Initializer.java
  	
  					PreUpdateChecker.initialize(core,
  							COConfigurationManager.getStringParameter("ui"));
-+*/
 -	
++*/
 +
  					UpdateMonitor.getSingleton(core); // setup the update monitor
  	
  					//Tell listeners that all is initialized :
-Index: azureus/org/gudy/azureus2/update/CorePatchChecker.java
+Index: azureus-5.7.1.0/org/gudy/azureus2/update/CorePatchChecker.java
 ===================================================================
---- azureus/org/gudy/azureus2/update/CorePatchChecker.java	(revision )
-+++ azureus/org/gudy/azureus2/update/CorePatchChecker.java	(revision )
-@@ -67,10 +67,12 @@
+--- azureus-5.7.1.0.orig/org/gudy/azureus2/update/CorePatchChecker.java	2015-06-02 17:14:58.000000000 +0200
++++ azureus-5.7.1.0/org/gudy/azureus2/update/CorePatchChecker.java	2016-02-23 11:46:14.935957918 +0100
+@@ -64,9 +64,11 @@
  				
  				System.out.println( "CorePatchChecker: TESTING !!!!" );
  			}
 -			
 -			plugin_interface.getUpdateManager().registerUpdatableComponent( this, false );
+-		}
 +			/*
 +			 * Adrian Perez: Don't register Core Patcher in Debian
 +			 *
 +			 * plugin_interface.getUpdateManager().registerUpdatableComponent( this, false );
 +			 */ 		}
--		}
-+	}
--	}
+ 	}
  	
  	public String
- 	getName()
-Index: azureus/org/gudy/azureus2/update/CoreUpdateChecker.java
+Index: azureus-5.7.1.0/org/gudy/azureus2/update/CoreUpdateChecker.java
 ===================================================================
---- azureus/org/gudy/azureus2/update/CoreUpdateChecker.java	(revision )
-+++ azureus/org/gudy/azureus2/update/CoreUpdateChecker.java	(revision )
-@@ -132,7 +132,11 @@
+--- azureus-5.7.1.0.orig/org/gudy/azureus2/update/CoreUpdateChecker.java	2015-06-02 17:14:58.000000000 +0200
++++ azureus-5.7.1.0/org/gudy/azureus2/update/CoreUpdateChecker.java	2016-02-23 11:46:14.939959918 +0100
+@@ -129,7 +129,11 @@
  		
  		rdf = plugin_interface.getUtilities().getResourceDownloaderFactory();
  	
+-		plugin_interface.getUpdateManager().registerUpdatableComponent( this, true );
 +	/*
 +	 * Adrian Perez: Don't update Azureus Core in Debian.
 +	 *
--		plugin_interface.getUpdateManager().registerUpdatableComponent( this, true );
 + 		plugin_interface.getUpdateManager().registerUpdatableComponent( this, true );
 +	*/
  	}
