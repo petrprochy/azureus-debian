@@ -1,11 +1,11 @@
 Disable auto-updates of the azureus platform, since we want to use debian packages
 to manage updates instead.
 
-Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java
+Index: azureus/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java
 ===================================================================
---- azureus-5.5.0.0.obsolete.orig/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java	2014-11-19 18:30:40.000000000 +0100
-+++ azureus-5.5.0.0.obsolete/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java	2015-02-01 18:57:20.888131343 +0100
-@@ -276,9 +276,9 @@
+--- azureus.orig/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java
++++ azureus/org/gudy/azureus2/core3/config/impl/ConfigurationDefaults.java
+@@ -290,9 +290,9 @@ public class ConfigurationDefaults {
  	def.put("Default save path", f.getAbsolutePath());
  	def.put("saveTo_list.max_entries", new Long(15));
  	
@@ -16,9 +16,9 @@ Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/core3/config/impl/Configuratio
 +    def.put("update.periodic",FALSE);
 +    def.put("update.opendialog",FALSE);
      def.put("update.autodownload", FALSE);
+     def.put("update.anonymous", FALSE);
  
-     def.put( "Config Verify Frequency", new Long( 30*60*1000 ));
-@@ -492,7 +492,7 @@
+@@ -528,7 +528,7 @@ public class ConfigurationDefaults {
      def.put( "locale", Locale.getDefault().toString() );
      def.put( "locale.set.complete.count", ZERO);
      def.put( "Password Confirm", null );
@@ -27,11 +27,11 @@ Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/core3/config/impl/Configuratio
      def.put( "Alert on close", FALSE );
      def.put( "diskmanager.friendly.hashchecking", FALSE );
      def.put( "diskmanager.hashchecking.smallestfirst", TRUE );    
-Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java
+Index: azureus/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java
 ===================================================================
---- azureus-5.5.0.0.obsolete.orig/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java	2014-11-19 18:30:22.000000000 +0100
-+++ azureus-5.5.0.0.obsolete/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java	2015-02-01 18:56:23.600132584 +0100
-@@ -90,7 +90,7 @@
+--- azureus.orig/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java
++++ azureus/org/gudy/azureus2/pluginsimpl/update/PluginUpdatePlugin.java
+@@ -90,7 +90,7 @@ PluginUpdatePlugin
  		
  		final PluginConfig	plugin_config = plugin_interface.getPluginconfig();
  		
@@ -40,7 +40,7 @@ Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/pluginsimpl/update/PluginUpdat
  
  		model.setConfigSectionID(PLUGIN_CONFIGSECTION_ID);
  		model.getStatus().setText( enabled?"Running":"Optional checks disabled" );
-@@ -119,7 +119,7 @@
+@@ -119,7 +119,7 @@ PluginUpdatePlugin
  		
  		BasicPluginConfigModel config = ui_manager.createBasicPluginConfigModel(ConfigSection.SECTION_PLUGINS, PLUGIN_CONFIGSECTION_ID);
  		
@@ -49,11 +49,11 @@ Index: azureus-5.5.0.0.obsolete/org/gudy/azureus2/pluginsimpl/update/PluginUpdat
  				
  		plugin_interface.addEventListener(
  			new PluginEventListener()
-Index: azureus-5.5.0.0.obsolete/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java
+Index: azureus/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java
 ===================================================================
---- azureus-5.5.0.0.obsolete.orig/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java	2014-11-19 18:31:52.000000000 +0100
-+++ azureus-5.5.0.0.obsolete/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java	2015-02-01 18:56:23.600132584 +0100
-@@ -139,7 +139,7 @@
+--- azureus.orig/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java
++++ azureus/com/aelitis/azureus/ui/swt/UIConfigDefaultsSWTv3.java
+@@ -142,7 +142,7 @@ public class UIConfigDefaultsSWTv3
  
  			defaults.addParameter("window.maximized", true);
  
