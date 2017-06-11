@@ -15,9 +15,9 @@ Signed-off-by: Adrian Perez <adrianperez.deb@gmail.com>
 
 Index: azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
 ===================================================================
---- azureus.orig/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java	2012-07-12 22:36:28.000000000 +0200
-+++ azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java	2013-04-05 15:23:54.491830480 +0200
-@@ -30,8 +30,10 @@
+--- azureus.orig/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
++++ azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
+@@ -27,8 +27,10 @@ import org.gudy.azureus2.core3.util.*;
  import org.gudy.azureus2.platform.PlatformManager;
  import org.gudy.azureus2.platform.PlatformManagerFactory;
  import org.gudy.azureus2.platform.unix.ScriptAfterShutdown;
@@ -28,7 +28,7 @@ Index: azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
  import org.gudy.azureus2.plugins.PluginInterface;
  import org.gudy.azureus2.plugins.platform.PlatformManagerException;
  import org.gudy.azureus2.pluginsimpl.local.PluginInitializer;
-@@ -315,7 +317,8 @@
+@@ -317,7 +319,8 @@ AzureusRestarterImpl
  		}
  
  		try {
@@ -38,7 +38,7 @@ Index: azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
  			AEWin32Access accessor = AEWin32Manager.getAccessor(true);
  			if (accessor == null) {
  				result = -123;
-@@ -370,6 +373,7 @@
+@@ -372,6 +375,7 @@ AzureusRestarterImpl
  							SystemProperties.getApplicationPath(), AEWin32Access.SW_NORMAL);
  				}
  			}
@@ -48,29 +48,25 @@ Index: azureus/com/aelitis/azureus/core/update/impl/AzureusRestarterImpl.java
  			 * Some results:
 Index: azureus/org/gudy/azureus2/platform/PlatformManagerFactory.java
 ===================================================================
---- azureus.orig/org/gudy/azureus2/platform/PlatformManagerFactory.java	2013-02-15 22:09:38.000000000 +0100
-+++ azureus/org/gudy/azureus2/platform/PlatformManagerFactory.java	2013-04-05 15:25:10.073977076 +0200
-@@ -59,11 +59,13 @@
- 							
- 							platform_manager = org.gudy.azureus2.platform.win32.PlatformManagerImpl.getSingleton();
- 							
--						}else if( getPlatformType() == PlatformManager.PT_MACOSX ){
+--- azureus.orig/org/gudy/azureus2/platform/PlatformManagerFactory.java
++++ azureus/org/gudy/azureus2/platform/PlatformManagerFactory.java
+@@ -56,9 +56,11 @@ PlatformManagerFactory
+ 							case PlatformManager.PT_WINDOWS:
+ 								cla = "org.gudy.azureus2.platform.win32.PlatformManagerImpl";
+ 								break;
 +/* --- Adrian Perez: Don't use MacOS-X's PlatformManagerImpl
-+							}else if( getPlatformType() == PlatformManager.PT_MACOSX ){
- 							
- 		                    platform_manager = org.gudy.azureus2.platform.macosx.PlatformManagerImpl.getSingleton();
- 		                    
--						}else if( getPlatformType() == PlatformManager.PT_UNIX ){
+ 							case PlatformManager.PT_MACOSX:
+ 								cla = "org.gudy.azureus2.platform.macosx.PlatformManagerImpl";
+ 								break;
 +*/
-+		                    }else if( getPlatformType() == PlatformManager.PT_UNIX ){
- 							
- 							platform_manager = org.gudy.azureus2.platform.unix.PlatformManagerImpl.getSingleton();
- 						}
+ 							case PlatformManager.PT_UNIX:
+ 								cla = "org.gudy.azureus2.platform.unix.PlatformManagerImpl";
+ 								break;
 Index: azureus/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java
 ===================================================================
---- azureus.orig/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java	2012-07-12 22:34:02.000000000 +0200
-+++ azureus/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java	2013-04-05 15:23:54.491830480 +0200
-@@ -24,6 +24,10 @@
+--- azureus.orig/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java
++++ azureus/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java
+@@ -21,6 +21,10 @@ import java.util.Properties;
  
  import org.gudy.azureus2.platform.unix.PlatformManagerUnixPlugin;
  
@@ -81,7 +77,7 @@ Index: azureus/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java
  import org.gudy.azureus2.plugins.Plugin;
  import org.gudy.azureus2.plugins.PluginException;
  import org.gudy.azureus2.plugins.PluginInterface;
-@@ -54,16 +58,21 @@
+@@ -51,13 +55,18 @@ public class PlatformManagerPluginDelega
  		PlatformManager platform = PlatformManagerFactory.getPlatformManager();
  
  		int platformType = platform.getPlatformType();
@@ -101,8 +97,4 @@ Index: azureus/org/gudy/azureus2/platform/PlatformManagerPluginDelegate.java
 +		if ( platformType == PlatformManager.PT_UNIX ){
  			PlatformManagerUnixPlugin plugin = new PlatformManagerUnixPlugin();
  			plugin.initialize(pluginInterface);
--		}else{
-+		} else {
- 			Properties pluginProperties = pluginInterface.getPluginProperties();
- 			pluginProperties.setProperty("plugin.name", "Platform-Specific Support");
- 			pluginProperties.setProperty("plugin.version", "1.0");
+ 		}else{
