@@ -3,4 +3,3 @@ debian/update-disable.patch
 fixes/multiuser.diff
 fixes/platform.diff
 debian/no-auto-update.patch
-fixes/ant-scripts.diff
