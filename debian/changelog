@@ -1,9 +1,4 @@
-azureus (5.7.6.0-2) unstable; urgency=medium
-
-
- -- Petr Prochazka <petrprochy@gmail.com>  Wed, 20 Dec 2017 23:30:43 +0100
-
-azureus (5.7.6.0-1) stable; urgency=low
+azureus (5.7.6.0-1) unstable; urgency=low
 
   * New upstream release
   * Migrate to SWT 4.6
