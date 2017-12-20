@@ -56,7 +56,8 @@
         </target>
 
         <target name="compile" depends="init" description="compile all files">
-          <javac srcdir="${src.dir}" destdir="${build.dir}" source="1.6" target="1.6" fork="yes" memoryMaximumSize="1536m"
+          <javac srcdir="${src.dir}" destdir="${build.dir}" source="1.6" target="1.6"
+                 fork="yes" memoryMaximumSize="1536m" encoding="8859_1"
                  includeAntRuntime="no" nowarn="yes" debug="true" excludes="${compile.excludes}">
             <classpath>
               <path refid="debian.classpath" />
