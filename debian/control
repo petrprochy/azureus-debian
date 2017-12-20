@@ -6,7 +6,7 @@ Uploaders: Adrian Perez <adrianperez.deb@gmail.com>
 DM-Upload-Allowed: yes
 Build-Depends: ant, cdbs, debhelper (>= 7.0)
 Build-Depends-Indep: java6-sdk, libcommons-cli-java, liblog4j1.2-java, 
- libswt-gtk-3-java, junit
+ libswt-gtk-4-java, junit
 Standards-Version: 3.9.2
 Vcs-Git: git://git.debian.org/git/pkg-java/azureus.git
 Vcs-Browser: http://git.debian.org/?p=pkg-java/azureus.git
@@ -15,8 +15,8 @@ Homepage: http://azureus.sourceforge.net
 Package: azureus
 Architecture: all
 Depends: java6-runtime, 
- libcommons-cli-java, liblog4j1.2-java, libswt-gtk-3-java, 
- java-wrappers, libswt-gnome-gtk-3-jni, libswt-cairo-gtk-3-jni, ${misc:Depends}
+ libcommons-cli-java, liblog4j1.2-java, libswt-gtk-4-java, 
+ java-wrappers, libswt-gnome-gtk-4-jni, libswt-cairo-gtk-4-jni, ${misc:Depends}
 Recommends: vuze
 Description: BitTorrent client
  BitTorrent is a peer-to-peer file distribution tool.
@@ -29,7 +29,7 @@ Description: BitTorrent client
 Package: vuze
 Architecture: all
 Depends: azureus, libswt-gnome-gtk-3-jni,
- libswt-webkit-gtk-3-jni | libswt-mozilla-gtk-3-jni, ${misc:Depends}
+ libswt-webkit-gtk-4-jni | libswt-mozilla-gtk-4-jni, ${misc:Depends}
 Description: Multimedia BitTorrent client
  BitTorrent is a peer-to-peer file distribution tool.
  .

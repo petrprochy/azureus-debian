@@ -8,7 +8,7 @@ VUZE_BIN="/usr/bin/vuze"
 
 find_java_runtime openjdk sunmin5
 
-find_jars Azureus2 log4j-1.2 commons-cli swt
+find_jars Azureus2 log4j-1.2 commons-cli swt4
 
 if [ ! -x $VUZE_BIN ]; then
 	UI=-Dforce.ui=az2
