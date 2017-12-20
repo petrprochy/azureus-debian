@@ -1,6 +1,8 @@
-azureus (5.7.6.0-1) UNRELEASED; urgency=low
+azureus (5.7.6.0-1) stable; urgency=low
 
   * New upstream release
+  * Migrate to SWT 4.6
+  * Updated build script by acctual from Vuze project
 
  -- Petr Prochazka <petrprochy@gmail.com>  Thu, 07 Dec 2017 18:25:32 +0100
 
