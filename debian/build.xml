@@ -36,7 +36,7 @@
 
         <path id="debian.classpath">
           <fileset dir="/usr/share/java/">
-            <include name="swt.jar" />
+            <include name="swt4.jar" />
             <include name="commons-cli.jar" />
             <include name="log4j-1.2.jar" />
             <include name="junit.jar" />
