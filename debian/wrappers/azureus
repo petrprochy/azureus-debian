@@ -1,5 +1,7 @@
 #!/bin/sh
 
+test -f ~/.azureusrc && . ~/.azureusrc
+
 # Include java-wrappers
 . /usr/lib/java-wrappers/java-wrappers.sh
 
