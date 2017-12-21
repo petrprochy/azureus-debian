@@ -28,7 +28,7 @@ Description: BitTorrent client
 
 Package: vuze
 Architecture: all
-Depends: azureus, libswt-gnome-gtk-3-jni,
+Depends: azureus, libswt-gnome-gtk-4-jni,
  libswt-webkit-gtk-4-jni | libswt-mozilla-gtk-4-jni, ${misc:Depends}
 Description: Multimedia BitTorrent client
  BitTorrent is a peer-to-peer file distribution tool.
